@@ -101,7 +101,7 @@ zmKV* createzmKVNode(const char* key, const char* val) {
     }
     
     // init 
-    memset(zmKVnode, 0, sizeof(zmKVnode));
+    memset(zmKVnode, 0, sizeof(zmKV));
     zmKVnode->kLen = strlen(key);
     zmKVnode->vLen = strlen(val);
     zmKVnode->next = NULL;
@@ -110,6 +110,7 @@ zmKV* createzmKVNode(const char* key, const char* val) {
     if (zmKVnode->key==NULL) {
        ZM_LOG("zmKVnode key malloc faidl\n");
        free(zmKVnode);
+       zmKVnode=NULL;
        return zmKVnode;
     }
 
@@ -118,6 +119,7 @@ zmKV* createzmKVNode(const char* key, const char* val) {
        ZM_LOG("zmKVnode val malloc faidl\n");
        free(zmKVnode->key);
        free(zmKVnode);
+       zmKVnode=NULL;
        return zmKVnode;
     }
 
@@ -531,7 +533,7 @@ zmKVRecord* createKVRecord(const char* data, zmKVDBDataSource source) {
 
 int zmKVRecordDestory(zmKVRecord* record) {
     int ret = 0;
-    zmKV* item = NULL;
+    zmKV *item = NULL, *node=NULL;
     if (record==NULL) {
         ZM_LOG("record is null.\n");
         return ret;
@@ -539,11 +541,9 @@ int zmKVRecordDestory(zmKVRecord* record) {
 
     item = &(record->head);
     while (item->next) {
-       zmKV* tmp = item->next;
-       item = tmp->next;
-       if (tmp->key) free(tmp->key); 
-       if (tmp->val) free(tmp->val);
-       free(tmp);
+       node = item->next; 
+       item->next = item->next->next;
+       destoryzmKVNode(node);
     }
     free(record);
     ret = 1;
