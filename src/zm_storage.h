@@ -1,24 +1,26 @@
 #ifndef _ZM_STORAGE_H_
 #define _ZM_STORAGE_H_
 
+#define ZM_DB_PATH_LEN   1024
+#define ZM_DB_NAME_LEN   1024
+#define ZM_DB_HANDLE_CNT    7
+
 typedef struct zmDB zmDB;
 typedef int (*zmDBhandle)(struct  zmDB* db, void* argus);
 
-/*
- *  The type enum of data storage structure.
- *  Use to specify which DB type you want to create.
- */
-typedef enum _zmDBTyep
-{
-    /* Main body is linked, and use arrays to impove query. */
-    ZM_DB_TYPE_KV=0
-} zmDBType;
+typedef enum zmDBDataFormat{
+    ZM_JSON_FORMAT= 0,
+} zmDBDataFormat;
+
+typedef struct zmDBConf {
+    char path[ZM_DB_PATH_LEN];   
+    char name[ZM_DB_NAME_LEN];
+    zmDBDataFormat format;
+    zmDBhandle* table;
+} zmDBConf; 
 
 struct zmDB {
     char* name;
-    // The data structure which DB based for.
-    zmDBType category;
-
     // Data in the memory. 
     void* data;    
     
@@ -42,7 +44,7 @@ typedef struct _zmStorage {
  * @category: Data storage structure which you need.
  * @agrus: Some init agruments.
  */
-int newzmStorage(zmStorage* storage, zmDBType category, void* agrus);
+int newZmStorage(zmStorage* storage, zmDBConf* conf);
 
 /* Actually, we have many storage objects. every object is a db which implement with different structure.
  * And you choose one of them.
@@ -56,7 +58,6 @@ zmDB* getzmStorage(zmStorage* storage, char* dbName);
  * @storage: The storage which you want destory.
  */
 int destoryzmStorage(zmStorage* storage);
-
 #endif
 
 
