@@ -138,8 +138,13 @@ int destoryzmStorage(zmStorage* storage) {
             }
             else {
                 tmp->db->destory(tmp->db, NULL);
-                tmp->db = NULL;
             }
+            
+            if (tmp->db->name) {
+                free(tmp->db->name);
+                tmp->db->name = NULL;
+            }
+            tmp->db = NULL;
         }
         item = tmp;
         free(tmp);
